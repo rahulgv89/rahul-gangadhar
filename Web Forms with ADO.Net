@@ -1,0 +1,107 @@
+<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="RegistrationDetail.aspx.cs" Inherits="CompanyPage.Registration_Detail" %>
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head runat="server">
+    <title></title>
+    <style>
+         .center {
+    margin-left:400px; 
+    margin-right:auto;
+    margin-top:100px;
+    border-width:2px;
+  }
+</style>
+</head>
+<body style="background-color:#EEE8AA">
+    <form id="form1" runat="server">
+     <table class ="center">
+            <tr>
+                <td class="style1" colspan="2">
+                    <h1 style="color:blue;"><strong>Registration Details</strong></h1></td>
+            </tr>
+             <tr>
+                <td class="style1" colspan="2">
+                    </td>
+            </tr>
+         
+            <tr>
+                <td class="style2">
+                    Name :</td>
+                <td class="style3">
+                    <asp:TextBox ID="txtname" runat="server" Text=""></asp:TextBox>
+                            </td>
+            </tr>
+            <tr>
+                <td>
+                    DOB :</td>
+                <td class="style4">
+                    <asp:TextBox ID="txtDOB" runat="server" Text=""></asp:TextBox>
+                </td>
+            </tr>
+           
+            <tr>
+                <td>
+                    Gender :</td>
+                <td class="style4">
+                    <asp:TextBox ID="txtGender" runat="server" Text=""></asp:TextBox>
+                </td>
+            </tr>
+                   <tr>
+                <td>
+                    Email ID :</td>
+                <td class="style4">
+                    <asp:TextBox ID="txtEmail" runat="server" Text=""></asp:TextBox>
+                   
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Password :</td>
+                <td>
+                    <asp:TextBox ID="txtPassword" runat="server" Text=""></asp:TextBox>
+                                    </td>
+            </tr>
+         <tr>
+           <td><asp:Button ID="btnSubmit" runat="server" Text="Submit" onclick="btnSubmit_Click" />
+         </td>
+            </tr>
+        </table>
+    </form>
+</body>
+</html>
+namespace CompanyPage
+{
+    public partial class Registration_Detail : System.Web.UI.Page
+    {
+        protected void Page_Load(object sender, EventArgs e)
+        {
+        }
+protected void btnSubmit_Click(object sender, EventArgs e)
+        {
+            try {
+                SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings                 
+                ["RegistrationConnectionString"].ConnectionString);
+                conn.Open();
+                string insertQuery = "insert into UserData(Name,Email,Password,Gender) 
+                values(@name,@email,@password,@gender)";
+                SqlCommand com = new SqlCommand(insertQuery, conn);
+                com.Parameters.AddWithValue("@name", txtname.Text);
+                com.Parameters.AddWithValue("@email", txtEmail.Text);
+                com.Parameters.AddWithValue("@password", txtPassword.Text);
+                com.Parameters.AddWithValue("@gender", txtGender.Text);
+
+                com.ExecuteNonQuery();
+                Response.Write("Registration Successful");
+                Response.Redirect("Employee.aspx");
+                Server.Transfer("Employee.aspx");
+                conn.Close();
+
+            }
+            catch (Exception ex)
+            {
+                Response.Write("Error:" +ex.ToString());
+            }
+               
+             }
