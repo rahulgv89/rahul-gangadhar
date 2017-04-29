@@ -1,0 +1,99 @@
+namespace ServiceService
+{
+    public partial class TeaService : ServiceBase
+    {
+       
+        Timer timer;
+
+        public TeaService()
+        {
+            timer = new Timer(30000D);
+            timer.AutoReset = true;
+            timer.Elapsed += new ElapsedEventHandler(timer_elasped);
+            InitializeComponent();
+        }
+
+        protected override void OnStart(string[] args)
+        {
+            try
+            {
+                WriteToFile("Started to write the data");
+
+                timer.Start();
+                WriteToFile("Timer Started");
+            }
+            catch(System.Exception ex)
+            {
+                WriteToFile(ex.ToString());
+            }
+        }
+
+        protected override void OnStop()
+        {
+            if (timer != null)
+            {
+                timer.Stop();
+            }
+        }
+
+        private void timer_elasped(object sender, ElapsedEventArgs e)
+        {
+            try
+            {
+                WriteToFile(DateTime.Now.ToString());
+                SaveData();
+            }
+            catch (Exception ex)
+            {
+                WriteToFile(ex.ToString());
+            }
+        }
+
+        private void WriteToFile(string text)
+        {
+            string path = @"D:\\ServiceLog.txt";
+            using (StreamWriter writer = new StreamWriter(path, true))
+            {
+                writer.WriteLine(string.Format(text, DateTime.Now.ToString("dd/MM/yyyy hh:mm:ss tt")));
+                writer.Close();
+            }
+        }
+
+        private void TraceService(string content)
+        {
+            FileStream fs = new FileStream(@"D:\Teaservice.txt", FileMode.OpenOrCreate, FileAccess.Write);
+            StreamWriter sw = new StreamWriter(fs);
+            sw.BaseStream.Seek(0, SeekOrigin.End);
+            sw.WriteLine(content);
+            sw.Flush();
+            sw.Close();
+        }
+
+        private void SaveData()
+        {
+         
+            try
+            {
+                string dbName = "name";
+                string dbEmail = "email";
+                string dbPassword = "password";
+                string dbGender = "gender";
+
+                SqlConnection conn = new SqlConnection(@"Data Source=MD-Cabin\SQLEXPRESS;Initial  Catalog=Registration;Integrated Security=True;Pooling=False");
+                conn.Open();
+                string insertQuery = "insert into UserData(Name,Email,Password,Gender) values (" + "'" + dbName + "' , '"  + dbEmail + "' , '" + dbPassword + "' , '" + dbGender + "' )";
+                SqlCommand com = new SqlCommand(insertQuery, conn);
+                com.ExecuteNonQuery();
+                conn.Close();
+
+                TraceService("Completed inserting the data");
+            }
+            catch (Exception ex)
+            {
+                TraceService(ex.InnerException.ToString());
+
+            }
+        }
+
+    }
+}
